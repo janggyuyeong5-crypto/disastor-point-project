@@ -1,218 +1,218 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="ko">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>서울특별시 재난 안전 대피소 통합 플랫폼</title>-->
-<!--    &lt;!&ndash; 실무용 반응형 CSS 프레임워크 (Tailwind CDN) &ndash;&gt;-->
-<!--    <script src="https://cdn.tailwindcss.com"></script>-->
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
-<!--    <style>-->
-<!--        /* 커스텀 스크롤바 디자인 */-->
-<!--        .custom-scroll::-webkit-scrollbar { width: 6px; }-->
-<!--        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }-->
-<!--        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }-->
-<!--        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울특별시 재난 안전 대피소 통합 플랫폼</title>
+    <!-- 실무용 반응형 CSS 프레임워크 (Tailwind CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 커스텀 스크롤바 디자인 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-<!--&lt;!&ndash; [1. 상단 고정 헤더: 로고 + 검색창 + 관제 뱃지] &ndash;&gt;-->
-<!--<header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">-->
-<!--    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">-->
+<!-- [1. 상단 고정 헤더: 로고 + 검색창 + 관제 뱃지] -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
 
-<!--        &lt;!&ndash; 좌측 브랜드 로고 &ndash;&gt;-->
-<!--        <div class="flex items-center gap-2.5 shrink-0 cursor-pointer" onclick="location.reload()">-->
-<!--            <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-sm">-->
-<!--                <i class="fa-solid fa-shield-halved"></i>-->
-<!--            </div>-->
-<!--            <span class="text-base font-bold text-slate-900 hidden sm:inline">서울재난안전가이드</span>-->
-<!--        </div>-->
+        <!-- 좌측 브랜드 로고 -->
+        <div class="flex items-center gap-2.5 shrink-0 cursor-pointer" onclick="location.reload()">
+            <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-sm">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="text-base font-bold text-slate-900 hidden sm:inline">서울재난안전가이드</span>
+        </div>
 
-<!--        &lt;!&ndash; 중앙 지역/주소 검색창 &ndash;&gt;-->
-<!--        <div class="flex-1 max-w-lg">-->
-<!--            <div class="relative flex items-center">-->
-<!--                <input type="text" id="searchInput"-->
-<!--                       placeholder="서울시 구, 동 또는 대피소 명칭 검색 (예: 역삼동, 도곡로)"-->
-<!--                       class="w-full bg-slate-100 text-sm rounded-lg pl-9 pr-16 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"-->
-<!--                       onkeypress="if(event.key === 'Enter') executeSearch()">-->
-<!--                <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>-->
-<!--                <button onclick="executeSearch()"-->
-<!--                        class="absolute right-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition shadow-sm">-->
-<!--                    검색-->
-<!--                </button>-->
-<!--            </div>-->
-<!--        </div>-->
+        <!-- 중앙 지역/주소 검색창 -->
+        <div class="flex-1 max-w-lg">
+            <div class="relative flex items-center">
+                <input type="text" id="searchInput"
+                       placeholder="서울시 구, 동 또는 대피소 명칭 검색 (예: 역삼동, 도곡로)"
+                       class="w-full bg-slate-100 text-sm rounded-lg pl-9 pr-16 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                       onkeypress="if(event.key === 'Enter') executeSearch()">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
+                <button onclick="executeSearch()"
+                        class="absolute right-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition shadow-sm">
+                    검색
+                </button>
+            </div>
+        </div>
 
-<!--        &lt;!&ndash; 우측 서울시 연동 상태 뱃지 &ndash;&gt;-->
-<!--        <div class="shrink-0 hidden md:flex items-center">-->
-<!--                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">-->
-<!--                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>-->
-<!--                    서울시 공공데이터 연동-->
-<!--                </span>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</header>-->
+        <!-- 우측 서울시 연동 상태 뱃지 -->
+        <div class="shrink-0 hidden md:flex items-center">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    서울시 공공데이터 연동
+                </span>
+        </div>
+    </div>
+</header>
 
-<!--&lt;!&ndash; [2. 메인 본문 컨텐츠] &ndash;&gt;-->
-<!--<main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-5">-->
+<!-- [2. 메인 본문 컨텐츠] -->
+<main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-5">
 
-<!--    &lt;!&ndash; 2-1. 재난 유형 선택 탭 (지진 / 수해 / 공습) &ndash;&gt;-->
-<!--    <div class="grid grid-cols-3 gap-3">-->
-<!--        <button id="tab-earthquake" onclick="switchDisaster('earthquake')"-->
-<!--                class="tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition">-->
-<!--            <i class="fa-solid fa-mountain"></i> 🏢 지진 옥외 대피소-->
-<!--        </button>-->
-<!--        <button id="tab-flood" onclick="switchDisaster('flood')"-->
-<!--                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">-->
-<!--            <i class="fa-solid fa-water"></i> 🌊 수해 임시 주거시설-->
-<!--        </button>-->
-<!--        <button id="tab-airraid" onclick="switchDisaster('airraid')"-->
-<!--                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">-->
-<!--            <i class="fa-solid fa-person-shelter"></i> 💣 민방위 공습 대피소-->
-<!--        </button>-->
-<!--    </div>-->
+    <!-- 2-1. 재난 유형 선택 탭 (지진 / 수해 / 공습) -->
+    <div class="grid grid-cols-3 gap-3">
+        <button id="tab-earthquake" onclick="switchDisaster('earthquake')"
+                class="tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition">
+            <i class="fa-solid fa-mountain"></i> 🏢 지진 옥외 대피소
+        </button>
+        <button id="tab-flood" onclick="switchDisaster('flood')"
+                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-water"></i> 🌊 수해 임시 주거시설
+        </button>
+        <button id="tab-airraid" onclick="switchDisaster('airraid')"
+                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
+            <i class="fa-solid fa-person-shelter"></i> 💣 민방위 공습 대피소
+        </button>
+    </div>
 
-<!--    &lt;!&ndash; 2-2. 결과 카드 목록 컨테이너 &ndash;&gt;-->
-<!--    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">-->
-<!--        <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">-->
-<!--            <div>-->
-<!--                <h2 class="font-bold text-slate-800 text-base" id="panelHeader">📊 지진 옥외 대피소 목록 (거리순)</h2>-->
-<!--                <p class="text-xs text-slate-400 mt-0.5" id="subHeader">백엔드 서버(/api/earthquake/test) 연동 상태 확인</p>-->
-<!--            </div>-->
-<!--            <span class="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md border border-blue-100" id="badgeEndpoint">-->
-<!--                    GET /api/earthquake/test-->
-<!--                </span>-->
-<!--        </div>-->
+    <!-- 2-2. 결과 카드 목록 컨테이너 -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+            <div>
+                <h2 class="font-bold text-slate-800 text-base" id="panelHeader">📊 지진 옥외 대피소 목록 (거리순)</h2>
+                <p class="text-xs text-slate-400 mt-0.5" id="subHeader">백엔드 서버(/api/earthquake/test) 연동 상태 확인</p>
+            </div>
+            <span class="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md border border-blue-100" id="badgeEndpoint">
+                    GET /api/earthquake/test
+                </span>
+        </div>
 
-<!--        &lt;!&ndash; [핵심] 스크롤되는 카드 리스트 영역 &ndash;&gt;-->
-<!--        <div id="resultsList" class="space-y-3 max-h-[460px] overflow-y-auto custom-scroll pr-1">-->
-<!--            &lt;!&ndash; 자바스크립트가 데이터를 동적으로 채워 넣습니다 &ndash;&gt;-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</main>-->
+        <!-- [핵심] 스크롤되는 카드 리스트 영역 -->
+        <div id="resultsList" class="space-y-3 max-h-[460px] overflow-y-auto custom-scroll pr-1">
+            <!-- 자바스크립트가 데이터를 동적으로 채워 넣습니다 -->
+        </div>
+    </div>
+</main>
 
-<!--&lt;!&ndash; [3. 하단 푸터] &ndash;&gt;-->
-<!--<footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">-->
-<!--    © 2026 Seoul Disaster Shelter Portal. Spring Boot REST API Architecture.-->
-<!--</footer>-->
+<!-- [3. 하단 푸터] -->
+<footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+    © 2026 Seoul Disaster Shelter Portal. Spring Boot REST API Architecture.
+</footer>
 
-<!--&lt;!&ndash; 비동기 통신 및 렌더링 스크립트 &ndash;&gt;-->
-<!--<script>-->
-<!--    let currentType = 'earthquake';-->
+<!-- 비동기 통신 및 렌더링 스크립트 -->
+<script>
+    let currentType = 'earthquake';
 
-<!--    // 브라우저가 열리면 지진 대피소 API 기본 첫 호출-->
-<!--    document.addEventListener("DOMContentLoaded", () => {-->
-<!--        switchDisaster('earthquake');-->
-<!--    });-->
+    // 브라우저가 열리면 지진 대피소 API 기본 첫 호출
+    document.addEventListener("DOMContentLoaded", () => {
+        switchDisaster('earthquake');
+    });
 
-<!--    // 재난 탭 전환-->
-<!--    function switchDisaster(type) {-->
-<!--        currentType = type;-->
-<!--        const tabs = ['earthquake', 'flood', 'airraid'];-->
+    // 재난 탭 전환
+    function switchDisaster(type) {
+        currentType = type;
+        const tabs = ['earthquake', 'flood', 'airraid'];
 
-<!--        tabs.forEach(t => {-->
-<!--            const btn = document.getElementById(`tab-${t}`);-->
-<!--            if (t === type) {-->
-<!--                btn.className = "tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition";-->
-<!--            } else {-->
-<!--                btn.className = "tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition";-->
-<!--            }-->
-<!--        });-->
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            if (t === type) {
+                btn.className = "tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition";
+            } else {
+                btn.className = "tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition";
+            }
+        });
 
-<!--        const titleMap = {-->
-<!--            earthquake: { name: '지진 옥외 대피소', icon: '🏢' },-->
-<!--            flood: { name: '수해 임시 주거시설', icon: '🌊' },-->
-<!--            airraid: { name: '민방위 공습 대피소', icon: '💣' }-->
-<!--        };-->
+        const titleMap = {
+            earthquake: { name: '지진 옥외 대피소', icon: '🏢' },
+            flood: { name: '수해 임시 주거시설', icon: '🌊' },
+            airraid: { name: '민방위 공습 대피소', icon: '💣' }
+        };
 
-<!--        document.getElementById('panelHeader').innerText = `📊 ${titleMap[type].name} 목록 (거리순)`;-->
-<!--        document.getElementById('subHeader').innerText = `백엔드 서버(/api/${type}/test) 연동 상태 확인`;-->
-<!--        document.getElementById('badgeEndpoint').innerText = `GET /api/${type}/test`;-->
+        document.getElementById('panelHeader').innerText = `📊 ${titleMap[type].name} 목록 (거리순)`;
+        document.getElementById('subHeader').innerText = `백엔드 서버(/api/${type}/test) 연동 상태 확인`;
+        document.getElementById('badgeEndpoint').innerText = `GET /api/${type}/test`;
 
-<!--        requestBackend(type, '');-->
-<!--    }-->
+        requestBackend(type, '');
+    }
 
-<!--    // 검색 실행-->
-<!--    function executeSearch() {-->
-<!--        const keyword = document.getElementById('searchInput').value.trim();-->
-<!--        requestBackend(currentType, keyword);-->
-<!--    }-->
+    // 검색 실행
+    function executeSearch() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        requestBackend(currentType, keyword);
+    }
 
-<!--    // 스프링 부트 백엔드 통신 및 스크롤 카드 렌더링-->
-<!--    function requestBackend(type, keyword) {-->
-<!--        const listArea = document.getElementById('resultsList');-->
-<!--        listArea.innerHTML = `-->
-<!--                <div class="text-center py-12 text-slate-400">-->
-<!--                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i>-->
-<!--                    <p class="text-sm">스프링 백엔드(/api/${type}/test)에서 데이터를 불러오는 중...</p>-->
-<!--                </div>-->
-<!--            `;-->
+    // 스프링 부트 백엔드 통신 및 스크롤 카드 렌더링
+    function requestBackend(type, keyword) {
+        const listArea = document.getElementById('resultsList');
+        listArea.innerHTML = `
+                <div class="text-center py-12 text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i>
+                    <p class="text-sm">스프링 백엔드(/api/${type}/test)에서 데이터를 불러오는 중...</p>
+                </div>
+            `;
 
-<!--        // 백엔드 컨트롤러 엔드포인트 비동기 호출-->
-<!--        fetch(`/api/${type}/test`)-->
-<!--            .then(response => response.json())-->
-<!--            .then(data => {-->
-<!--                const searchTag = keyword ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded ml-2">검색어: ${keyword}</span>` : '';-->
+        // 백엔드 컨트롤러 엔드포인트 비동기 호출
+        fetch(`/api/${type}/test`)
+            .then(response => response.json())
+            .then(data => {
+                const searchTag = keyword ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded ml-2">검색어: ${keyword}</span>` : '';
 
-<!--                // 스크롤 영역을 채우는 카드 템플릿 예시들-->
-<!--                listArea.innerHTML = `-->
-<!--                        &lt;!&ndash; 응답 성공 안내 카드 &ndash;&gt;-->
-<!--                        <div class="border border-emerald-200 bg-emerald-50/60 rounded-xl p-4 flex items-center justify-between">-->
-<!--                            <div>-->
-<!--                                <div class="flex items-center gap-2">-->
-<!--                                    <span class="bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded">HTTP 200 OK</span>-->
-<!--                                    <span class="text-sm font-bold text-slate-900">${data.message || '컨트롤러 통신 성공'}</span>-->
-<!--                                    ${searchTag}-->
-<!--                                </div>-->
-<!--                                <p class="text-xs text-slate-500 mt-1">응답 타입: ${data.type || type.toUpperCase()} | 컨트롤러 정상 바인딩 완료</p>-->
-<!--                            </div>-->
-<!--                            <span class="text-xs font-bold text-emerald-700 bg-white border border-emerald-200 px-3 py-1 rounded-md shadow-sm">-->
-<!--                                정상 작동-->
-<!--                            </span>-->
-<!--                        </div>-->
+                // 스크롤 영역을 채우는 카드 템플릿 예시들
+                listArea.innerHTML = `
+                        <!-- 응답 성공 안내 카드 -->
+                        <div class="border border-emerald-200 bg-emerald-50/60 rounded-xl p-4 flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded">HTTP 200 OK</span>
+                                    <span class="text-sm font-bold text-slate-900">${data.message || '컨트롤러 통신 성공'}</span>
+                                    ${searchTag}
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">응답 타입: ${data.type || type.toUpperCase()} | 컨트롤러 정상 바인딩 완료</p>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-700 bg-white border border-emerald-200 px-3 py-1 rounded-md shadow-sm">
+                                정상 작동
+                            </span>
+                        </div>
 
-<!--                        &lt;!&ndash; 샘플 대피소 카드 1 &ndash;&gt;-->
-<!--                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">-->
-<!--                            <div>-->
-<!--                                <div class="flex items-center gap-2 mb-1">-->
-<!--                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 1</span>-->
-<!--                                    <h3 class="text-sm font-bold text-slate-900">역삼초등학교 운동장 (샘플)</h3>-->
-<!--                                </div>-->
-<!--                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 역삼로 123 (내 위치로부터 180m)</p>-->
-<!--                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 1,200명 | 야외 개활지 안전 확보</p>-->
-<!--                            </div>-->
-<!--                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">-->
-<!--                                대피 가능-->
-<!--                            </span>-->
-<!--                        </div>-->
+                        <!-- 샘플 대피소 카드 1 -->
+                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 1</span>
+                                    <h3 class="text-sm font-bold text-slate-900">역삼초등학교 운동장 (샘플)</h3>
+                                </div>
+                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 역삼로 123 (내 위치로부터 180m)</p>
+                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 1,200명 | 야외 개활지 안전 확보</p>
+                            </div>
+                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
+                                대피 가능
+                            </span>
+                        </div>
 
-<!--                        &lt;!&ndash; 샘플 대피소 카드 2 &ndash;&gt;-->
-<!--                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">-->
-<!--                            <div>-->
-<!--                                <div class="flex items-center gap-2 mb-1">-->
-<!--                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 2</span>-->
-<!--                                    <h3 class="text-sm font-bold text-slate-900">도곡근린공원 야외광장 (샘플)</h3>-->
-<!--                                </div>-->
-<!--                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 도곡로 456 (내 위치로부터 420m)</p>-->
-<!--                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 850명 | 긴급 대피 유도선 완비</p>-->
-<!--                            </div>-->
-<!--                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">-->
-<!--                                대피 가능-->
-<!--                            </span>-->
-<!--                        </div>-->
-<!--                    `;-->
-<!--            })-->
-<!--            .catch(error => {-->
-<!--                listArea.innerHTML = `-->
-<!--                        <div class="border border-red-200 bg-red-50 rounded-xl p-6 text-center text-red-600">-->
-<!--                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 text-red-500"></i>-->
-<!--                            <p class="font-bold text-sm">백엔드 서버 통신 실패 (/api/${type}/test)</p>-->
-<!--                            <p class="text-xs text-red-400 mt-1">스프링 부트 애플리케이션(8080 포트)이 실행 중인지 확인하세요.</p>-->
-<!--                        </div>-->
-<!--                    `;-->
-<!--            });-->
-<!--    }-->
-<!--</script>-->
-<!--</body>-->
-<!--</html>-->
+                        <!-- 샘플 대피소 카드 2 -->
+                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 2</span>
+                                    <h3 class="text-sm font-bold text-slate-900">도곡근린공원 야외광장 (샘플)</h3>
+                                </div>
+                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 도곡로 456 (내 위치로부터 420m)</p>
+                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 850명 | 긴급 대피 유도선 완비</p>
+                            </div>
+                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
+                                대피 가능
+                            </span>
+                        </div>
+                    `;
+            })
+            .catch(error => {
+                listArea.innerHTML = `
+                        <div class="border border-red-200 bg-red-50 rounded-xl p-6 text-center text-red-600">
+                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 text-red-500"></i>
+                            <p class="font-bold text-sm">백엔드 서버 통신 실패 (/api/${type}/test)</p>
+                            <p class="text-xs text-red-400 mt-1">스프링 부트 애플리케이션(8080 포트)이 실행 중인지 확인하세요.</p>
+                        </div>
+                    `;
+            });
+    }
+</script>
+</body>
+</html>
