@@ -1,5 +1,6 @@
 import os
 import math
+import re  # 정규식 사용을 위한 모듈 추가
 import pymysql
 import requests
 from dotenv import load_dotenv
@@ -144,9 +145,6 @@ def fetch_and_save_data():
             # ------------------------------------------------
             # 기존 데이터 삭제
             # ------------------------------------------------
-            #
-            # shlt_id AUTO_INCREMENT도 초기화됨
-            # ------------------------------------------------
 
             print("\n[3] 기존 공습대피소 데이터 삭제 중...")
 
@@ -160,32 +158,29 @@ def fetch_and_save_data():
             # ------------------------------------------------
             # INSERT SQL
             # ------------------------------------------------
-            #
-            # shlt_id는 AUTO_INCREMENT이므로 제외
-            # ------------------------------------------------
 
             sql = """
-                INSERT INTO air_shelter_info
-                (
-                    ctpv_nm,
-                    sgg_nm,
-                    fclt_nm,
-                    daddr,
-                    lot,
-                    lat,
-                    mng_dept_nm
-                )
-                VALUES
-                (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
-            """
+                  INSERT INTO air_shelter_info
+                  (
+                      ctpv_nm,
+                      sgg_nm,
+                      fclt_nm,
+                      daddr,
+                      lot,
+                      lat,
+                      mng_dept_nm
+                  )
+                  VALUES
+                      (
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s
+                      ) \
+                  """
 
 
             # ------------------------------------------------
@@ -195,8 +190,8 @@ def fetch_and_save_data():
             for i in range(total_pages):
 
                 start = (
-                    i * page_size
-                ) + 1
+                                i * page_size
+                        ) + 1
 
                 end = min(
                     (i + 1) * page_size,
@@ -237,18 +232,18 @@ def fetch_and_save_data():
 
 
                 # ------------------------------------------------
-                # DB 저장
+                # DB 저장 (주소 기반 구 이름 추출 로직 포함)
                 # ------------------------------------------------
 
                 for row in rows:
 
+                    # 좌표 변환 예외 처리
                     try:
                         longitude = float(
                             row.get("XCRD") or 0
                         )
                     except (ValueError, TypeError):
                         longitude = 0.0
-
 
                     try:
                         latitude = float(
@@ -258,11 +253,25 @@ def fetch_and_save_data():
                         latitude = 0.0
 
 
+                    # 1. ctpv_nm은 무조건 '서울특별시'로 고정
+                    ctpv_nm = "서울특별시"
+
+
+                    # 2. 주소(LOTNO_ADDR)에서 'OO구' 패턴을 찾아 sgg_nm 추출
+                    address = row.get("LOTNO_ADDR") or ""
+                    sgg_nm = "-"
+
+                    # 정규식을 이용해 'OO구' (예: 강동구, 종로구 등) 추출
+                    match = re.search(r'([가-힣]+구)', address)
+                    if match:
+                        sgg_nm = match.group(1)
+
+
                     values = (
-                        row.get("CTPV_NM"),
-                        row.get("SGG_NM"),
+                        ctpv_nm,
+                        sgg_nm,
                         row.get("BPLC_NM"),
-                        row.get("LOTNO_ADDR"),
+                        address,
                         longitude,
                         latitude,
                         row.get("MNG_DEPT_NM") or "-"
@@ -312,23 +321,23 @@ def fetch_and_save_data():
 
 
             # ------------------------------------------------
-            # shlt_id 확인
+            # 데이터 확인
             # ------------------------------------------------
 
             cursor.execute("""
-                SELECT
-                    shlt_id,
-                    ctpv_nm,
-                    sgg_nm,
-                    fclt_nm,
-                    daddr,
-                    lot,
-                    lat,
-                    mng_dept_nm
-                FROM air_shelter_info
-                ORDER BY shlt_id
-                LIMIT 5
-            """)
+                           SELECT
+                               shlt_id,
+                               ctpv_nm,
+                               sgg_nm,
+                               fclt_nm,
+                               daddr,
+                               lot,
+                               lat,
+                               mng_dept_nm
+                           FROM air_shelter_info
+                           ORDER BY shlt_id
+                           LIMIT 5
+                           """)
 
             result = cursor.fetchall()
 

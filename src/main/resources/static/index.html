@@ -3,40 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서울특별시 재난 안전 대피소 통합 플랫폼</title>
-    <!-- 실무용 반응형 CSS 프레임워크 (Tailwind CDN) -->
+    <title>대피할지도 - 재난 안전 대피소 통합 플랫폼</title>
+
+    <!-- 1. 스타일 프레임워크 (Tailwind CSS CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. 아이콘 폰트 (FontAwesome CDN) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* 커스텀 스크롤바 디자인 */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+
+    <!-- 3. 분리한 외부 스타일시트 연결 -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-<!-- [1. 상단 고정 헤더: 로고 + 검색창 + 관제 뱃지] -->
+<!-- ================================================================= -->
+<!-- [구역 1] 상단 고정 헤더: 로고 + 중앙 검색창 -->
+<!-- ================================================================= -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 h-16 relative flex items-center justify-between">
 
-        <!-- 좌측 브랜드 로고 -->
-        <div class="flex items-center gap-2.5 shrink-0 cursor-pointer" onclick="location.reload()">
+        <!-- 1-1. 좌측 로고 (클릭 시 새로고침) -->
+        <div class="flex items-center gap-2.5 shrink-0 cursor-pointer z-10" onclick="location.reload()">
             <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-sm">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <span class="text-base font-bold text-slate-900 hidden sm:inline">서울재난안전가이드</span>
+            <span class="text-base font-bold text-slate-900">대피할지도</span>
         </div>
 
-        <!-- 중앙 지역/주소 검색창 -->
-        <div class="flex-1 max-w-lg">
+        <!-- 1-2. 중앙 절대 좌표 검색창 (화면 정중앙 고정) -->
+        <div class="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
             <div class="relative flex items-center">
+                <!-- 돋보기 아이콘 -->
+                <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
+
+                <!-- 검색 입력창 (엔터키 입력 시 executeSearch() 실행) -->
                 <input type="text" id="searchInput"
-                       placeholder="서울시 구, 동 또는 대피소 명칭 검색 (예: 역삼동, 도곡로)"
+                       placeholder="대피소 명칭 또는 주소 검색 (예: 역삼동)"
                        class="w-full bg-slate-100 text-sm rounded-lg pl-9 pr-16 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                        onkeypress="if(event.key === 'Enter') executeSearch()">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
+
+                <!-- 검색 버튼 (클릭 시 executeSearch() 실행) -->
                 <button onclick="executeSearch()"
                         class="absolute right-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition shadow-sm">
                     검색
@@ -44,75 +50,108 @@
             </div>
         </div>
 
-        <!-- 우측 서울시 연동 상태 뱃지 -->
-        <div class="shrink-0 hidden md:flex items-center">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    서울시 공공데이터 연동
-                </span>
-        </div>
+        <!-- 1-3. 헤더 우측 여백 균형용 빈 태그 -->
+        <div class="w-9 shrink-0"></div>
     </div>
 </header>
 
-<!-- [2. 메인 본문 컨텐츠] -->
-<main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-5">
 
-    <!-- 2-1. 재난 유형 선택 탭 (지진 / 수해 / 공습) -->
+<!-- ================================================================= -->
+<!-- [구역 2] 메인 본문 컨텐츠 영역 -->
+<!-- ================================================================= -->
+<main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-5">
+
+    <!-- 2-1. 재난 유형 선택 탭 버튼 3종 -->
     <div class="grid grid-cols-3 gap-3">
+        <!-- 지진 대피소 버튼 -->
         <button id="tab-earthquake" onclick="switchDisaster('earthquake')"
                 class="tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition">
-            <i class="fa-solid fa-mountain"></i> 🏢 지진 옥외 대피소
+            🏢 지진 대피소
         </button>
+        <!-- 수해 임시 시설 버튼 -->
         <button id="tab-flood" onclick="switchDisaster('flood')"
                 class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-water"></i> 🌊 수해 임시 주거시설
+            🌊 수해 시설
         </button>
+        <!-- 공습 대피소 버튼 -->
         <button id="tab-airraid" onclick="switchDisaster('airraid')"
                 class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-person-shelter"></i> 💣 민방위 공습 대피소
+            💣 공습 대피소
         </button>
     </div>
 
-    <!-- 2-2. 결과 카드 목록 컨테이너 -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
-            <div>
-                <h2 class="font-bold text-slate-800 text-base" id="panelHeader">📊 지진 옥외 대피소 목록 (거리순)</h2>
-                <p class="text-xs text-slate-400 mt-0.5" id="subHeader">백엔드 서버(/api/earthquake/test) 연동 상태 확인</p>
-            </div>
-            <span class="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md border border-blue-100" id="badgeEndpoint">
-                    GET /api/earthquake/test
-                </span>
+    <!-- 2-2. 화면 분할 (좌: 목록 1칸 / 우: 지도 3칸) -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-5">
+
+        <!-- [좌측 1칸] 대피소 스크롤 카드 목록 -->
+        <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col h-[600px]">
+            <h2 class="font-bold text-slate-800 text-sm mb-3 pb-2 border-b border-slate-100" id="panelHeader">
+                📊 지진 대피소 목록
+            </h2>
+            <!-- 자바스크립트가 카드를 동적으로 꽂아 넣을 빈 스크롤 영역 -->
+            <div id="resultsList" class="space-y-3 overflow-y-auto custom-scroll pr-1 flex-1"></div>
         </div>
 
-        <!-- [핵심] 스크롤되는 카드 리스트 영역 -->
-        <div id="resultsList" class="space-y-3 max-h-[460px] overflow-y-auto custom-scroll pr-1">
-            <!-- 자바스크립트가 데이터를 동적으로 채워 넣습니다 -->
+        <!-- [우측 3칸] map.html을 품은 지도 iframe 액자 -->
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[600px]">
+            <iframe id="mapFrame" src="map.html" class="w-full h-full border-0"></iframe>
         </div>
+
     </div>
 </main>
 
-<!-- [3. 하단 푸터] -->
-<footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-    © 2026 Seoul Disaster Shelter Portal. Spring Boot REST API Architecture.
-</footer>
 
-<!-- 비동기 통신 및 렌더링 스크립트 -->
+<!-- ================================================================= -->
+<!-- [구역 3] 자바스크립트 비즈니스 로직 -->
+<!-- ================================================================= -->
 <script>
+    /* -------------------------------------------------------------
+     * [섹션 1] 전역 데이터 및 상태 저장소 (Mock Database)
+     * 추후 실제 스프링 부트 REST API(/api/...) 연동 시 대체될 데이터입니다.
+     * ------------------------------------------------------------- */
+    const shelterDatabase = {
+        earthquake: [
+            { id: 1, name: '역삼초등학교 운동장', address: '서울특별시 강남구 역삼로 123', lat: 37.4954, lng: 127.0333 },
+            { id: 2, name: '도곡근린공원 야외광장', address: '서울특별시 강남구 도곡로 456', lat: 37.4902, lng: 127.0421 }
+        ],
+        flood: [
+            { id: 3, name: '잠원동 주민센터 대피시설', address: '서울특별시 서초구 잠원로 88', lat: 37.5144, lng: 127.0118 }
+        ],
+        airraid: [
+            { id: 4, name: '강남역 지하쇼핑센터 대피소', address: '서울특별시 강남구 강남대로 지하 396', lat: 37.4979, lng: 127.0276 }
+        ]
+    };
+
+    // 현재 활성화된 재난 유형 상태 변수 (기본값: 지진)
     let currentType = 'earthquake';
 
-    // 브라우저가 열리면 지진 대피소 API 기본 첫 호출
-    document.addEventListener("DOMContentLoaded", () => {
-        switchDisaster('earthquake');
-    });
 
-    // 재난 탭 전환
+    /* -------------------------------------------------------------
+     * [섹션 2] 생명주기 및 시작점 (Lifecycle & Initialization)
+     * ------------------------------------------------------------- */
+    // 우측 map.html(iframe)이 완전히 로딩되면 최초로 '지진 대피소' 데이터를 전달하여 실행합니다.
+    document.getElementById('mapFrame').onload = function () {
+        switchDisaster('earthquake');
+    };
+
+
+    /* -------------------------------------------------------------
+     * [섹션 3] 사용자 상호작용 함수 (Event Handlers)
+     * ------------------------------------------------------------- */
+
+    /**
+     * 1. 탭 전환 처리 함수
+     * @param {string} type - 'earthquake' | 'flood' | 'airraid'
+     */
     function switchDisaster(type) {
         currentType = type;
         const tabs = ['earthquake', 'flood', 'airraid'];
 
+        // (1) 버튼 디자인 갱신: 클릭된 버튼에만 파란색 강조 테두리를 입힙니다.
         tabs.forEach(t => {
             const btn = document.getElementById(`tab-${t}`);
+            if (!btn) return;
+
             if (t === type) {
                 btn.className = "tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition";
             } else {
@@ -120,98 +159,112 @@
             }
         });
 
+        // (2) 좌측 목록 상단 제목 텍스트 갱신
         const titleMap = {
-            earthquake: { name: '지진 옥외 대피소', icon: '🏢' },
-            flood: { name: '수해 임시 주거시설', icon: '🌊' },
-            airraid: { name: '민방위 공습 대피소', icon: '💣' }
+            earthquake: '🏢 지진 대피소',
+            flood: '🌊 수해 시설',
+            airraid: '💣 공습 대피소'
         };
+        const headerElement = document.getElementById('panelHeader');
+        if (headerElement) {
+            headerElement.innerText = `📊 ${titleMap[type]} 목록`;
+        }
 
-        document.getElementById('panelHeader').innerText = `📊 ${titleMap[type].name} 목록 (거리순)`;
-        document.getElementById('subHeader').innerText = `백엔드 서버(/api/${type}/test) 연동 상태 확인`;
-        document.getElementById('badgeEndpoint').innerText = `GET /api/${type}/test`;
+        // (3) 현재 탭에 해당하는 데이터 추출
+        const dataList = shelterDatabase[type] || [];
 
-        requestBackend(type, '');
+        // (4) 좌측 목록 카드 생성 및 지도 마커 갱신 실행
+        renderListCards(dataList);
+        updateMapWithFrame(dataList);
     }
 
-    // 검색 실행
+
+    /**
+     * 2. 키워드 검색 처리 함수
+     */
     function executeSearch() {
-        const keyword = document.getElementById('searchInput').value.trim();
-        requestBackend(currentType, keyword);
+        // (1) 입력창 텍스트 추출 및 앞뒤 공백 제거
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value.trim();
+
+        // (2) 현재 선택된 재난 탭의 전체 원본 데이터 가져오기
+        const currentDataList = shelterDatabase[currentType] || [];
+
+        // (3) 검색창이 비어있다면 전체 목록을 다시 보여주고 종료
+        if (keyword === '') {
+            renderListCards(currentDataList);
+            updateMapWithFrame(currentDataList);
+            return;
+        }
+
+        // (4) 대피소 명칭 또는 주소에 검색어가 포함된 항목만 필터링
+        const filteredList = currentDataList.filter(shelter => {
+            const isNameMatched = shelter.name.includes(keyword);
+            const isAddressMatched = shelter.address.includes(keyword);
+            return isNameMatched || isAddressMatched;
+        });
+
+        // (5) 필터링된 결과로 목록과 지도를 동시 갱신
+        renderListCards(filteredList);
+        updateMapWithFrame(filteredList);
     }
 
-    // 스프링 부트 백엔드 통신 및 스크롤 카드 렌더링
-    function requestBackend(type, keyword) {
+
+    /* -------------------------------------------------------------
+     * [섹션 4] 화면 렌더링 및 통신 보조 함수 (Helpers)
+     * ------------------------------------------------------------- */
+
+    /**
+     * 좌측 목록 영역에 대피소 카드들을 동적으로 그려주는 함수
+     * @param {Array} dataList - 대피소 객체 배열
+     */
+    function renderListCards(dataList) {
         const listArea = document.getElementById('resultsList');
-        listArea.innerHTML = `
-                <div class="text-center py-12 text-slate-400">
-                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i>
-                    <p class="text-sm">스프링 백엔드(/api/${type}/test)에서 데이터를 불러오는 중...</p>
+        listArea.innerHTML = ''; // 이전 카드 목록 청소
+
+        // 검색/조회 결과가 없을 때의 예외 처리
+        if (dataList.length === 0) {
+            listArea.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">조건에 일치하는 대피소가 없습니다.</div>`;
+            return;
+        }
+
+        // 반복문을 돌며 카드 HTML 요소를 하나씩 조립
+        dataList.forEach((shelter, index) => {
+            const card = document.createElement('div');
+            card.className = "border border-slate-200 rounded-xl p-3 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition";
+
+            // [상호작용] 카드 클릭 시 우측 지도 iframe의 panToLocation 함수를 호출하여 지도를 이동시킵니다.
+            card.onclick = () => {
+                const mapFrame = document.getElementById('mapFrame');
+                if (mapFrame && mapFrame.contentWindow && mapFrame.contentWindow.panToLocation) {
+                    mapFrame.contentWindow.panToLocation(shelter.lat, shelter.lng);
+                }
+            };
+
+            // 카드 내부 텍스트 구성
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-1">
+                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">No.${index + 1}</span>
                 </div>
+                <h3 class="text-sm font-bold text-slate-900">${shelter.name}</h3>
+                <p class="text-xs text-slate-500 mt-1">📍 ${shelter.address}</p>
             `;
 
-        // 백엔드 컨트롤러 엔드포인트 비동기 호출
-        fetch(`/api/${type}/test`)
-            .then(response => response.json())
-            .then(data => {
-                const searchTag = keyword ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded ml-2">검색어: ${keyword}</span>` : '';
+            listArea.appendChild(card);
+        });
+    }
 
-                // 스크롤 영역을 채우는 카드 템플릿 예시들
-                listArea.innerHTML = `
-                        <!-- 응답 성공 안내 카드 -->
-                        <div class="border border-emerald-200 bg-emerald-50/60 rounded-xl p-4 flex items-center justify-between">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded">HTTP 200 OK</span>
-                                    <span class="text-sm font-bold text-slate-900">${data.message || '컨트롤러 통신 성공'}</span>
-                                    ${searchTag}
-                                </div>
-                                <p class="text-xs text-slate-500 mt-1">응답 타입: ${data.type || type.toUpperCase()} | 컨트롤러 정상 바인딩 완료</p>
-                            </div>
-                            <span class="text-xs font-bold text-emerald-700 bg-white border border-emerald-200 px-3 py-1 rounded-md shadow-sm">
-                                정상 작동
-                            </span>
-                        </div>
 
-                        <!-- 샘플 대피소 카드 1 -->
-                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 1</span>
-                                    <h3 class="text-sm font-bold text-slate-900">역삼초등학교 운동장 (샘플)</h3>
-                                </div>
-                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 역삼로 123 (내 위치로부터 180m)</p>
-                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 1,200명 | 야외 개활지 안전 확보</p>
-                            </div>
-                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
-                                대피 가능
-                            </span>
-                        </div>
-
-                        <!-- 샘플 대피소 카드 2 -->
-                        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-blue-50/40 hover:border-blue-300 transition cursor-pointer flex justify-between items-center">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">추천 대피소 2</span>
-                                    <h3 class="text-sm font-bold text-slate-900">도곡근린공원 야외광장 (샘플)</h3>
-                                </div>
-                                <p class="text-xs text-slate-500">📍 서울특별시 강남구 도곡로 456 (내 위치로부터 420m)</p>
-                                <p class="text-xs text-slate-400 mt-1">수용 능력: 약 850명 | 긴급 대피 유도선 완비</p>
-                            </div>
-                            <span class="text-xs font-bold text-blue-600 bg-white border border-slate-200 px-2.5 py-1 rounded-md">
-                                대피 가능
-                            </span>
-                        </div>
-                    `;
-            })
-            .catch(error => {
-                listArea.innerHTML = `
-                        <div class="border border-red-200 bg-red-50 rounded-xl p-6 text-center text-red-600">
-                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 text-red-500"></i>
-                            <p class="font-bold text-sm">백엔드 서버 통신 실패 (/api/${type}/test)</p>
-                            <p class="text-xs text-red-400 mt-1">스프링 부트 애플리케이션(8080 포트)이 실행 중인지 확인하세요.</p>
-                        </div>
-                    `;
-            });
+    /**
+     * 우측 지도 iframe(map.html)의 setMarkers 함수에 새 대피소 데이터를 안전하게 전달하는 통신 함수
+     * @param {Array} dataList - 지도에 핀을 꽂을 대피소 객체 배열
+     */
+    function updateMapWithFrame(dataList) {
+        const mapFrame = document.getElementById('mapFrame');
+        // iframe 내부 자바스크립트(window)와 setMarkers 함수가 정상 로드되었는지 확인 후 실행
+        if (mapFrame && mapFrame.contentWindow && mapFrame.contentWindow.setMarkers) {
+            mapFrame.contentWindow.setMarkers(dataList);
+        }
     }
 </script>
 </body>
