@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 페이지</title>
+
+    <style>
+        /* 로그인 창과 동일한 배경 및 정렬 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 화면이 작아도 잘리지 않도록 min-height 사용 */
+            background-color: #f5f6fa;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* 회원가입 카드 디자인 (로그인보다 칸이 많아 조금 더 길어집니다) */
+        .signup-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px; /* 위아래 여백 확보 */
+        }
+
+        .signup-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745; /* 가입 버튼은 초록색 계열로 포인트 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .signup-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 로그인 화면으로 돌아가는 링크 디자인 */
+        .link-group {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .link-group a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .link-group a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>회원가입</h2>
+
+    <form id="signupForm"  action="/api/users/signup" method="POST" >
+
+        <div class="input-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="passwordConfirm">비밀번호 확인</label>
+            <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="realname">이름</label>
+            <input type="text" id="realname" name="realname" placeholder="이름을 입력하세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <!-- type을 email로 지정했습니다 -->
+            <input type="email" id="email" name="email" placeholder="예: user@example.com" required>
+        </div>
+
+        <button type="submit" class="signup-btn">가입하기</button>
+
+    </form>
+
+    <div class="link-group">
+        <a href="/login">이미 계정이 있으신가요? 로그인</a>
+    </div>
+</div>
+
+
+</body>
+</html>

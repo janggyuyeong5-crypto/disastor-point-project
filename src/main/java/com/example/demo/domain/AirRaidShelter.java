@@ -1,4 +1,4 @@
-package com.example.demo.domain;
-
-public class AirRaidShelter {
-}
+//package com.example.demo.domain;
+//
+//public class AirRaidShelter {
+//}

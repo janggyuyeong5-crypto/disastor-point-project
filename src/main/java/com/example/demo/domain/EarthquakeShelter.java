@@ -1,4 +1,4 @@
-package com.example.demo.domain;
-
-public class EarthquakeShelter {
-}
+//package com.example.demo.domain;
+//
+//public class EarthquakeShelter {
+//}

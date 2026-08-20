@@ -1,4 +1,4 @@
-package com.example.demo.domain;
-
-public class FloodShelter {
-}
+//package com.example.demo.domain;
+//
+//public class FloodShelter {
+//}

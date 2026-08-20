@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세보기</title>
+  <style>
+    body {
+      background-color: #f5f6fa;
+      margin: 0;
+      padding: 40px;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+    .detail-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+    h2 { color: #333; margin-top: 0; }
+    .content-box {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      min-height: 150px;
+      margin: 20px 0;
+      white-space: pre-wrap; /* 줄바꿈 유지 */
+      word-break: break-all;
+      color: #444;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .back-btn {
+      background-color: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .back-btn:hover { background-color: #5a6268; }
+  </style>
+</head>
+<body>
+
+<div class="detail-container">
+  <!-- 글 제목 출력 -->
+  <h2 th:text="${post.title}">제목</h2>
+  <hr style="border:0; height:1px; background:#eee; margin: 20px 0;">
+
+  <!-- 길었던 전체 내용 출력 -->
+  <div class="content-box" th:text="${post.content}">
+    내용
+  </div>
+
+  <a href="/posts" class="back-btn">목록으로</a>
+</div>
+
+</body>
+</html>
