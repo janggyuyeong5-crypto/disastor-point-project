@@ -5,12 +5,11 @@ from sqlalchemy import create_engine
 
 # --- [DB 접속 정보 설정] ---
 DB_USER = "root"
-DB_PASSWORD = "root"  # 본인의 MySQL root 비밀번호
+DB_PASSWORD = "root"
 DB_HOST = "localhost"
 DB_PORT = "3306"
-DB_NAME = "shelter_db"  # 질문자님의 실제 DB 이름(shelter_db)으로 수정
+DB_NAME = "shelter_db"
 
-# 비밀번호 특수문자 안전 인코딩
 encoded_pw = urllib.parse.quote_plus(DB_PASSWORD)
 DB_URL = f"mysql+pymysql://{DB_USER}:{encoded_pw}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
@@ -18,10 +17,9 @@ FOLDER_PATH = "scripts"
 
 def run_etl():
     print("=" * 65)
-    print("🚀 [Step 1] 엑셀 데이터 파일 탐색 및 로드 시작")
+    print("🚀 [Step 1] 홍수 엑셀 데이터 파일 탐색 및 로드 시작")
     print("=" * 65)
 
-    # scripts 폴더에서 flood_shelter 엑셀 파일 찾기
     target_file = None
     for f in os.listdir(FOLDER_PATH):
         if f.startswith("flood_shelter") and (f.endswith(".xlsx") or f.endswith(".xls")):
@@ -32,46 +30,37 @@ def run_etl():
         print("❌ flood_shelter 엑셀 파일을 찾을 수 없습니다.")
         return
 
-    # 엑셀 파일 읽기
     raw_df = pd.read_excel(target_file, engine='openpyxl')
     print(f"📄 원본 엑셀 데이터 {len(raw_df):,}건 로드 완료")
 
-    print("\n🧹 [Step 2] MySQL 규격에 맞춰 데이터 정제 및 se, mng_dept_nm 설정 중...")
+    print("\n🧹 [Step 2] MySQL 규격에 맞춰 데이터 정제 중...")
     clean_df = pd.DataFrame()
 
-    # 1) 기본 문자열 컬럼 정제
     clean_df['ctpv_nm'] = raw_df['ctpv_nm'].astype(str)
     clean_df['sgg_nm'] = raw_df['sgg_nm'].astype(str)
     clean_df['fclt_nm'] = raw_df['fclt_nm'].astype(str)
     clean_df['daddr'] = raw_df['daddr'].astype(str)
-    
-    # 2) 위도(lat)와 경도(lot) 숫자형(Float) 변환
     clean_df['lot'] = pd.to_numeric(raw_df['lot'], errors='coerce')
     clean_df['lat'] = pd.to_numeric(raw_df['lat'], errors='coerce')
     
-    # 3) 🌟 [요청사항 반영] 관리부서명(mng_dept_nm)에 하이픈(-) 기호 일괄 부여
+    # [요청사항 반영] 관리부서 '-', 구분코드 3
     clean_df['mng_dept_nm'] = '-'
-
-    # 4) 🌟 [요청사항 반영] 대피소 구분 코드(se)를 숫자 3으로 일괄 설정
     clean_df['se'] = 3
 
-    # 5) 필수 결측치(위도, 경도, 시설명) 행 제거
     clean_df = clean_df.dropna(subset=['lat', 'lot', 'fclt_nm'])
 
-    print(f"✨ 정제 완료: 유효 데이터 {len(clean_df):,}건 준비됨 (관리부서 '-', se=3 포함)")
+    print(f"✨ 정제 완료: 유효 데이터 {len(clean_df):,}건")
 
     print("\n💾 [Step 3] MySQL flood 테이블에 데이터 적재 중...")
     try:
         engine = create_engine(DB_URL)
+        
+        # 컬럼 순서 정렬
+        column_order = ['ctpv_nm', 'sgg_nm', 'fclt_nm', 'daddr', 'lot', 'lat', 'mng_dept_nm', 'se']
+        clean_df = clean_df[column_order]
 
-        # if_exists='append': 테이블의 자동증가(AUTO_INCREMENT)를 유지하며 데이터 삽입
-        # index=False: 파이썬 내부 인덱스는 제외
         clean_df.to_sql(name='flood', con=engine, if_exists='append', index=False)
-
-        print("=" * 65)
-        print(f"🎉 [성공!] 총 {len(clean_df):,}건이 'flood' 테이블에 완벽하게 저장되었습니다!")
-        print("=" * 65)
-
+        print("🎉 [성공!] 'flood' 테이블에 저장되었습니다!")
     except Exception as e:
         print(f"❌ DB 저장 에러: {e}")
 
