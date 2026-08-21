@@ -60,14 +60,14 @@ BASE_URL = (
 
 
 # ============================================================
-# 4. MySQL 접속 정보
+# 4. MySQL 접속 정보 (shelter_db 사용)
 # ============================================================
 
 db_config = {
     "host": "localhost",
     "user": "root",
     "password": DB_PASSWORD,
-    "database": "airstrike",
+    "database": "shelter_db",
     "charset": "utf8mb4"
 }
 
@@ -143,35 +143,39 @@ def fetch_and_save_data():
         with connection.cursor() as cursor:
 
             # ------------------------------------------------
-            # 기존 데이터 삭제
+            # 기존 데이터 삭제 (airstrike 테이블 대상)
             # ------------------------------------------------
 
             print("\n[3] 기존 공습대피소 데이터 삭제 중...")
 
             cursor.execute(
-                "TRUNCATE TABLE air_shelter_info"
+                "TRUNCATE TABLE airstrike"
             )
 
             print("✅ 기존 데이터 삭제 완료")
 
 
             # ------------------------------------------------
-            # INSERT SQL
+            # INSERT SQL (shlt_id, se 칼럼 추가 반영)
             # ------------------------------------------------
 
             sql = """
-                  INSERT INTO air_shelter_info
+                  INSERT INTO airstrike
                   (
+                      shlt_id,
                       ctpv_nm,
                       sgg_nm,
                       fclt_nm,
                       daddr,
                       lot,
                       lat,
-                      mng_dept_nm
+                      mng_dept_nm,
+                      se
                   )
                   VALUES
                       (
+                          %s,
+                          %s,
                           %s,
                           %s,
                           %s,
@@ -232,7 +236,7 @@ def fetch_and_save_data():
 
 
                 # ------------------------------------------------
-                # DB 저장 (주소 기반 구 이름 추출 로직 포함)
+                # DB 저장 (주소 기반 구 이름 추출 및 se 컬럼에 '2' 고정 입력)
                 # ------------------------------------------------
 
                 for row in rows:
@@ -261,20 +265,24 @@ def fetch_and_save_data():
                     address = row.get("LOTNO_ADDR") or ""
                     sgg_nm = "-"
 
-                    # 정규식을 이용해 'OO구' (예: 강동구, 종로구 등) 추출
                     match = re.search(r'([가-힣]+구)', address)
                     if match:
                         sgg_nm = match.group(1)
 
+                    # 3. 공습대피소 구분값은 고정 숫자 '2' 부여
+                    se_value = "2"
+
 
                     values = (
+                        row.get("RSTR_SN"),     # 공습대피소 고유 번호 (API 키 값)
                         ctpv_nm,
                         sgg_nm,
                         row.get("BPLC_NM"),
                         address,
                         longitude,
                         latitude,
-                        row.get("MNG_DEPT_NM") or "-"
+                        row.get("MNG_DEPT_NM") or "-",
+                        se_value                # 구분 칼럼 (고정값 '2')
                     )
 
 
@@ -309,7 +317,7 @@ def fetch_and_save_data():
 
             cursor.execute(
                 "SELECT COUNT(*) "
-                "FROM air_shelter_info"
+                "FROM airstrike"
             )
 
             saved_count = cursor.fetchone()[0]
@@ -333,15 +341,16 @@ def fetch_and_save_data():
                                daddr,
                                lot,
                                lat,
-                               mng_dept_nm
-                           FROM air_shelter_info
+                               mng_dept_nm,
+                               se
+                           FROM airstrike
                            ORDER BY shlt_id
                            LIMIT 5
                            """)
 
             result = cursor.fetchall()
 
-            print("\n[shlt_id 확인]")
+            print("\n[저장된 데이터 확인]")
 
             for row in result:
                 print(row)

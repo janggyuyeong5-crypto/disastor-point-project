@@ -4,68 +4,110 @@
     <meta charset="UTF-8">
     <title>카카오 지도 프레임</title>
     <style>
-        /* [핵심] html, body, map의 높이를 화면 전체 높이(100vh)로 강제 지정하여 도화지가 접히지 않게 합니다 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100vh; overflow: hidden; }
-        #map { width: 100%; height: 100vh; background-color: #f8fafc; }
+        /* 부모 영역에 맞추어 100% 꽉 차도록 여백 및 크기 지정 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            background-color: #f8fafc;
+        }
     </style>
-    <!-- 카카오맵 SDK (autoload=false를 붙여 우리가 원할 때 안전하게 로드하도록 설정) -->
+    <!-- 카카오맵 SDK (autoload=false) -->
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=fb918912c351246220dec79f1b6ba2d7&autoload=false"></script>
 </head>
 <body>
 
-<!-- 지도가 그려질 도화지 -->
 <div id="map"></div>
 
 <script>
     var map = null;
     var currentMarkers = [];
+    var isMapReady = false;
 
-    // 카카오맵 SDK가 완전히 준비되면 지도를 생성합니다.
-    kakao.maps.load(function() {
+    // 1. 카카오맵 SDK 로딩 후 지도 객체 초기화
+    kakao.maps.load(function () {
         var container = document.getElementById('map');
         var options = {
-            center: new kakao.maps.LatLng(37.4954, 127.0333), // 강남권 중심 좌표
-            level: 5
+            center: new kakao.maps.LatLng(37.4954, 127.0333), // 기본 중심: 강남역
+            level: 7
         };
         map = new kakao.maps.Map(container, options);
+        isMapReady = true;
+
+        // 지도가 처음 그려진 직후 도화지 크기 자동 보정
+        map.relayout();
     });
 
-    // 메인 화면(index.html)에서 마커를 찍으라고 호출하는 함수
+    /**
+     * 2. 부모창(index.html)에서 새 대피소 목록을 받아 마커를 그리는 함수
+     */
     function setMarkers(dataList) {
-        // 지도가 아직 덜 켜졌으면 0.1초 뒤에 다시 시도하는 안전장치
-        if (!map) {
-            setTimeout(function() { setMarkers(dataList); }, 100);
+        // 지도가 아직 완전히 생성되지 않았으면 0.15초 후 재시도
+        if (!isMapReady || !map) {
+            setTimeout(function () {
+                setMarkers(dataList);
+            }, 150);
             return;
         }
 
-        // 기존 마커 지우기
-        currentMarkers.forEach(m => m.setMap(null));
+        // (1) 이전 마커 전부 삭제
+        for (var i = 0; i < currentMarkers.length; i++) {
+            currentMarkers[i].setMap(null);
+        }
         currentMarkers = [];
 
         if (!dataList || dataList.length === 0) return;
 
-        // 새로운 마커 생성 및 지도에 부착
-        dataList.forEach(item => {
-            var pos = new kakao.maps.LatLng(item.lat, item.lng);
-            var marker = new kakao.maps.Marker({
-                position: pos,
-                title: item.name
-            });
-            marker.setMap(map);
-            currentMarkers.push(marker);
+        // (2) 지도 렌더링 영역 재계산
+        map.relayout();
+
+        var bounds = new kakao.maps.LatLngBounds();
+        var validCount = 0;
+
+        // 안정적인 성능을 위해 상위 50개 마커 우선 표시
+        var targets = dataList.slice(0, 50);
+
+        targets.forEach(function (shelter) {
+            var lat = Number(shelter.lat);
+            var lng = Number(shelter.lng);
+
+            if (!isNaN(lat) && !isNaN(lng) && lat > 0 && lng > 0) {
+                var position = new kakao.maps.LatLng(lat, lng);
+                var marker = new kakao.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: shelter.name || ''
+                });
+
+                currentMarkers.push(marker);
+                bounds.extend(position);
+                validCount++;
+            }
         });
 
-        // 첫 번째 대피소 위치로 부드럽게 화면 이동
-        panToLocation(dataList[0].lat, dataList[0].lng);
+        // (3) 마커들이 화면에 꽉 차게 보이도록 지도 중심 및 줌 레벨 조정
+        if (validCount > 0) {
+            setTimeout(function () {
+                map.relayout();
+                map.setBounds(bounds);
+            }, 100);
+        }
     }
 
-    // 지도의 중심 좌표를 부드럽게 이동시키는 함수
+    /**
+     * 3. 목록 카드 클릭 시 해당 위치로 지도 이동
+     */
     function panToLocation(lat, lng) {
-        if (map) {
-            var moveLatLon = new kakao.maps.LatLng(lat, lng);
-            map.panTo(moveLatLon);
-        }
+        if (!isMapReady || !map) return;
+        map.relayout();
+        var movePos = new kakao.maps.LatLng(Number(lat), Number(lng));
+        map.panTo(movePos);
     }
 </script>
 </body>
