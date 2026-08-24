@@ -69,7 +69,7 @@ BASE_URL = (
 
 
 # ============================================================
-# 4. MySQL 접속 정보
+# 4. MySQL 접속 정보 (shelter_db 사용)
 # ============================================================
 
 db_config = {
@@ -152,47 +152,48 @@ def fetch_and_save_data():
         with connection.cursor() as cursor:
 
             # ------------------------------------------------
-            # 기존 데이터 삭제
+            # 기존 데이터 삭제 (earthquake 테이블)
             # ------------------------------------------------
 
             print("\n[3] 기존 지진대피소 데이터 삭제 중...")
 
             cursor.execute(
-                "TRUNCATE TABLE shelter_info"
+                "TRUNCATE TABLE earthquake"
             )
 
             print("✅ 기존 데이터 삭제 완료")
 
 
             # ------------------------------------------------
-            # INSERT SQL
-            # ------------------------------------------------
-            #
-            # PK가 AUTO_INCREMENT라면 PK는 제외
+            # INSERT SQL (shlt_id, se 칼럼 추가 반영)
             # ------------------------------------------------
 
             sql = """
-                INSERT INTO shelter_info
-                (
-                    ctpv_nm,
-                    sgg_nm,
-                    fclt_nm,
-                    daddr,
-                    lot,
-                    lat,
-                    mng_dept_nm
-                )
-                VALUES
-                (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
-            """
+                  INSERT INTO earthquake
+                  (
+                      shlt_id,
+                      ctpv_nm,
+                      sgg_nm,
+                      fclt_nm,
+                      daddr,
+                      lot,
+                      lat,
+                      mng_dept_nm,
+                      se
+                  )
+                  VALUES
+                      (
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s,
+                          %s
+                      ) \
+                  """
 
 
             # ------------------------------------------------
@@ -202,8 +203,8 @@ def fetch_and_save_data():
             for i in range(total_pages):
 
                 start = (
-                    i * page_size
-                ) + 1
+                                i * page_size
+                        ) + 1
 
                 end = min(
                     (i + 1) * page_size,
@@ -244,19 +245,21 @@ def fetch_and_save_data():
 
 
                 # ------------------------------------------------
-                # DB 저장
+                # DB 저장 (SHLT_id 및 SE 데이터 매핑)
                 # ------------------------------------------------
 
                 for row in rows:
 
                     values = (
-                        row.get("CTPV_NM"),
-                        row.get("SGG_NM"),
-                        row.get("FCLT_NM"),
-                        row.get("DADDR"),
-                        row.get("LOT"),
-                        row.get("LAT"),
-                        row.get("MNG_DEPT_NM")
+                        row.get("SHLT_id"),     # 피난처 ID
+                        row.get("CTPV_NM"),     # 시도명
+                        row.get("SGG_NM"),      # 시군구명
+                        row.get("FCLT_NM"),     # 시설명
+                        row.get("DADDR"),       # 상세주소
+                        row.get("LOT"),         # 경도
+                        row.get("LAT"),         # 위도
+                        row.get("MNG_DEPT_NM"), # 관리부서
+                        row.get("SE")           # 구분 칼럼 (API 데이터)
                     )
 
 
@@ -291,7 +294,7 @@ def fetch_and_save_data():
 
             cursor.execute(
                 "SELECT COUNT(*) "
-                "FROM shelter_info"
+                "FROM earthquake"
             )
 
             saved_count = cursor.fetchone()[0]
@@ -303,14 +306,14 @@ def fetch_and_save_data():
 
 
             # ------------------------------------------------
-            # PK 확인
+            # 데이터 확인
             # ------------------------------------------------
 
             cursor.execute("""
-                SELECT *
-                FROM shelter_info
-                LIMIT 5
-            """)
+                           SELECT *
+                           FROM earthquake
+                           LIMIT 5
+                           """)
 
             result = cursor.fetchall()
 

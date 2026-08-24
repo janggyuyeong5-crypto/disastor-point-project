@@ -1,23 +1,29 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.AirRaidShelterService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Map;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(AirRaidShelterController.class)
 class AirRaidShelterControllerTest {
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private AirRaidShelterService airRaidShelterService;
+
     @Test
-    void testAirRaid() {
-        // 1. 객체 생성
-        AirRaidShelterService service = new AirRaidShelterService();
-        AirRaidShelterController controller = new AirRaidShelterController(service);
-
-        // 2. 메서드 호출
-        Map<String, Object> response = controller.testAirRaid();
-
-        // 3. 결과 검증
-        Assertions.assertEquals("success", response.get("status"));
+    @DisplayName("공습 대피소 전체 목록 API 정상 응답 테스트")
+    void getAllAirRaidSheltersTest() throws Exception {
+        mockMvc.perform(get("/api/shelters/air"))
+                .andExpect(status().isOk());
     }
 }

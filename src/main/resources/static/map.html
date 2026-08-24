@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>카카오 지도 프레임</title>
+
+    <!-- 공용 스타일시트 연결 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 💡 &libraries=services 파라미터를 추가하여 장소 검색(Places) 라이브러리 활성화 -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=fb918912c351246220dec79f1b6ba2d7&libraries=services&autoload=false"></script>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    var map = null;
+    var ps = null; // 카카오 장소 검색 객체
+    var currentMarkers = [];
+    var myLocationMarker = null;     // GPS 내 위치 마커
+    var searchLocationMarker = null; // 검색된 특정 장소 마커
+    var isMapReady = false;
+
+    // 1. 카카오맵 SDK 초기화
+    kakao.maps.load(function () {
+        var container = document.getElementById('map');
+        var options = {
+            center: new kakao.maps.LatLng(37.4954, 127.0333),
+            level: 7
+        };
+        map = new kakao.maps.Map(container, options);
+        ps = new kakao.maps.services.Places(); // 장소 검색 서비스 객체 초기화
+        isMapReady = true;
+        map.relayout();
+
+        // 지도의 이동 또는 줌(확대/축소)이 멈췄을 때 부모창으로 현재 뷰포트 좌표 전달
+        kakao.maps.event.addListener(map, 'idle', function () {
+            var bounds = map.getBounds();
+            var sw = bounds.getSouthWest();
+            var ne = bounds.getNorthEast();
+
+            if (window.parent && typeof window.parent.filterByBounds === 'function') {
+                window.parent.filterByBounds({
+                    minLat: sw.getLat(),
+                    maxLat: ne.getLat(),
+                    minLng: sw.getLng(),
+                    maxLng: ne.getLng()
+                });
+            }
+        });
+    });
+
+    /**
+     * 2. 💡 [핵심] 일반 장소(예: 서울종로경찰서, 강남역) 검색 후 지도 이동 및 주변 대피소 자동 탐색
+     */
+    function searchPlace(keyword) {
+        if (!isMapReady || !ps) return;
+
+        ps.keywordSearch(keyword, function (data, status, pagination) {
+            if (status === kakao.maps.services.Status.OK) {
+                // 검색 결과 중 최상위 장소의 좌표
+                var targetPlace = data[0];
+                var movePos = new kakao.maps.LatLng(targetPlace.y, targetPlace.x);
+
+                // 이전 검색 장소 마커 제거 후 새로 표시
+                if (searchLocationMarker) {
+                    searchLocationMarker.setMap(null);
+                }
+
+                searchLocationMarker = new kakao.maps.Marker({
+                    position: movePos,
+                    map: map,
+                    title: `🔍 검색 위치: ${targetPlace.place_name}`
+                });
+
+                // 주변 대피소가 잘 보이도록 줌 레벨 5로 이동
+                map.setLevel(5);
+                map.panTo(movePos);
+                // ➡️ 이동이 멈추면 자동으로 idle 이벤트가 발생하여 주변 대피소가 좌측 목록에 채워집니다!
+            } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                alert("일치하는 장소를 찾을 수 없습니다.");
+            } else {
+                alert("장소 검색 중 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    /**
+     * 3. 부모창에서 대피소 목록을 받아 지도에 마커 생성
+     */
+    function setMarkers(dataList) {
+        if (!isMapReady || !map) {
+            setTimeout(function () { setMarkers(dataList); }, 150);
+            return;
+        }
+
+        // 기존 대피소 마커 초기화
+        for (var i = 0; i < currentMarkers.length; i++) {
+            currentMarkers[i].setMap(null);
+        }
+        currentMarkers = [];
+
+        if (!dataList || dataList.length === 0) return;
+
+        map.relayout();
+        var bounds = new kakao.maps.LatLngBounds();
+        var validCount = 0;
+        var targets = dataList.slice(0, 100);
+
+        targets.forEach(function (shelter) {
+            var lat = Number(shelter.lat);
+            var lng = Number(shelter.lng);
+
+            if (!isNaN(lat) && !isNaN(lng) && lat > 0 && lng > 0) {
+                var position = new kakao.maps.LatLng(lat, lng);
+                var marker = new kakao.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: shelter.name || ''
+                });
+
+                // 마커 클릭 시 부모창의 selectShelterFromMap 함수 실행
+                kakao.maps.event.addListener(marker, 'click', function () {
+                    if (window.parent && typeof window.parent.selectShelterFromMap === 'function') {
+                        window.parent.selectShelterFromMap(shelter);
+                    }
+                });
+
+                currentMarkers.push(marker);
+                bounds.extend(position);
+                validCount++;
+            }
+        });
+
+        // 특정 위치를 검색/GPS 이동 중이 아닐 때만 전체 마커 영역으로 자동 줌 맞춤
+        if (validCount > 0 && !myLocationMarker && !searchLocationMarker) {
+            setTimeout(function () {
+                map.relayout();
+                map.setBounds(bounds);
+            }, 100);
+        }
+    }
+
+    /**
+     * 4. 내 위치 GPS 좌표로 지도 이동
+     */
+    function moveToUserLocation(lat, lng) {
+        if (!isMapReady || !map) return;
+
+        var userPos = new kakao.maps.LatLng(lat, lng);
+
+        if (myLocationMarker) {
+            myLocationMarker.setMap(null);
+        }
+
+        myLocationMarker = new kakao.maps.Marker({
+            position: userPos,
+            map: map,
+            title: '📍 내 현재 위치'
+        });
+
+        map.setLevel(5);
+        map.panTo(userPos);
+    }
+
+    /**
+     * 5. 목록 카드 클릭 시 해당 좌표로 부드럽게 지도 이동
+     */
+    function panToLocation(lat, lng) {
+        if (!isMapReady || !map) return;
+        map.relayout();
+        var movePos = new kakao.maps.LatLng(Number(lat), Number(lng));
+        map.panTo(movePos);
+    }
+</script>
+</body>
+</html>
