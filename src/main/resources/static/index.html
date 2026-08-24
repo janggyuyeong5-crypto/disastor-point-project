@@ -10,16 +10,19 @@
 
     <!-- 2. FontAwesome 아이콘 CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 3. 통합 외부 스타일시트 연결 -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col">
 
 <!-- ================================================================= -->
-<!-- [헤더 구역] 로고 + 중앙 검색창 -->
+<!-- [헤더 구역] 로고 + 중앙 통합 검색창 및 GPS 버튼 -->
 <!-- ================================================================= -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 h-16 relative flex items-center justify-between">
 
-        <!-- 좌측 로고 (클릭 시 새로고침) -->
+        <!-- 좌측 로고 -->
         <div class="flex items-center gap-2.5 shrink-0 cursor-pointer z-10" onclick="location.reload()">
             <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-sm">
                 <i class="fa-solid fa-shield-halved"></i>
@@ -27,14 +30,22 @@
             <span class="text-base font-bold text-slate-900">대피할지도</span>
         </div>
 
-        <!-- 중앙 검색창 (엔터키 또는 버튼 클릭 시 검색 실행) -->
+        <!-- 중앙 통합 검색창 (대피소명, 주소, 장소 검색 지원) -->
         <div class="absolute left-1/2 -translate-x-1/2 w-full max-w-md px-4">
             <div class="relative flex items-center">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
                 <input type="text" id="searchInput"
-                       placeholder="대피소 명칭 또는 주소 검색 (예: 종로구)"
-                       class="w-full bg-slate-100 text-sm rounded-lg pl-9 pr-16 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                       placeholder="장소, 건물명 또는 주소 검색 (예: 종로경찰서)"
+                       class="w-full bg-slate-100 text-sm rounded-lg pl-9 pr-24 py-2 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                        onkeypress="if(event.key === 'Enter') executeSearch()">
+
+                <!-- 내 위치 GPS 버튼 -->
+                <button onclick="getUserLocation()" title="내 위치 중심으로 찾기"
+                        class="absolute right-14 p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition flex items-center justify-center">
+                    <i class="fa-solid fa-crosshairs text-base"></i>
+                </button>
+
+                <!-- 검색 버튼 -->
                 <button onclick="executeSearch()"
                         class="absolute right-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition shadow-sm">
                     검색
@@ -53,16 +64,13 @@
 
     <!-- 재난 유형 선택 탭 3종 -->
     <div class="grid grid-cols-3 gap-3">
-        <button id="tab-earthquake" onclick="switchDisaster('earthquake')"
-                class="tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition">
+        <button id="tab-earthquake" onclick="switchDisaster('earthquake')" class="tab-btn tab-btn-active">
             🏢 지진 대피소
         </button>
-        <button id="tab-flood" onclick="switchDisaster('flood')"
-                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
+        <button id="tab-flood" onclick="switchDisaster('flood')" class="tab-btn tab-btn-inactive">
             🌊 수해 시설
         </button>
-        <button id="tab-airraid" onclick="switchDisaster('airraid')"
-                class="tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition">
+        <button id="tab-airraid" onclick="switchDisaster('airraid')" class="tab-btn tab-btn-inactive">
             💣 공습 대피소
         </button>
     </div>
@@ -70,15 +78,23 @@
     <!-- 화면 분할 구역 -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-5">
         <!-- [좌측] 목록 패널 -->
-        <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col h-[600px]">
-            <h2 class="font-bold text-slate-800 text-sm mb-3 pb-2 border-b border-slate-100" id="panelHeader">
-                📊 지진 대피소 목록
-            </h2>
+        <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col h-[650px]">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
+                <h2 class="font-bold text-slate-800 text-sm" id="panelHeader">
+                    📊 지진 대피소 목록
+                </h2>
+                <span id="totalCountBadge" class="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">0개</span>
+            </div>
+
+            <!-- 대피소 카드 목록 구역 -->
             <div id="resultsList" class="space-y-3 overflow-y-auto pr-1 flex-1"></div>
+
+            <!-- 하단 페이지네이션 구역 -->
+            <div id="paginationArea" class="pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 shrink-0"></div>
         </div>
 
         <!-- [우측] 지도 iframe 프레임 -->
-        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[600px]">
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[650px]">
             <iframe id="mapFrame" src="map.html" class="w-full h-full border-0"></iframe>
         </div>
     </div>
@@ -88,52 +104,44 @@
 <!-- [자바스크립트 로직] -->
 <!-- ================================================================= -->
 <script>
-    // 1. 상태 및 캐시 저장소
+    // 1. 캐시 저장소
     const shelterDatabase = {
-        earthquake: [
-            { id: 1, name: '역삼초등학교 운동장', address: '서울특별시 강남구 역삼로 123', lat: 37.4954, lng: 127.0333 },
-            { id: 2, name: '도곡근린공원 야외광장', address: '서울특별시 강남구 도곡로 456', lat: 37.4902, lng: 127.0421 }
-        ],
-        flood: [
-            { id: 3, name: '잠원동 주민센터 대피시설', address: '서울특별시 서초구 잠원로 88', lat: 37.5144, lng: 127.0118 }
-        ],
-        airraid: [] // DB에서 조회하여 채울 빈 배열
+        earthquake: [],
+        flood: [],
+        airraid: []
     };
 
     let currentType = 'earthquake';
-    let airraidLoading = false;
 
-    // 2. 우측 지도 iframe 로딩 완료 시 초기 지진 대피소 표출
+    // 페이징 상태 변수
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let currentDisplayList = [];
+
+    // 2. 지도 iframe 준비 완료 시 초기 로드
     document.getElementById('mapFrame').onload = function () {
         switchDisaster('earthquake');
     };
 
-    // 3. 탭 전환 및 비동기 데이터 처리 함수
+    // 3. 재난 탭 전환 및 데이터 비동기 호출
     async function switchDisaster(type) {
         currentType = type;
         const tabs = ['earthquake', 'flood', 'airraid'];
 
-        // 버튼 스타일 활성화/비활성화 처리
         tabs.forEach(t => {
             const btn = document.getElementById(`tab-${t}`);
             if (!btn) return;
-            if (t === type) {
-                btn.className = "tab-btn p-3.5 rounded-xl border-2 border-blue-600 bg-white shadow-sm flex items-center justify-center gap-2 font-bold text-blue-600 transition";
-            } else {
-                btn.className = "tab-btn p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center gap-2 font-semibold text-slate-600 hover:bg-slate-50 transition";
-            }
+            btn.className = (t === type) ? "tab-btn tab-btn-active" : "tab-btn tab-btn-inactive";
         });
 
-        // 상단 패널 제목 갱신
         const titleMap = { earthquake: '🏢 지진 대피소', flood: '🌊 수해 시설', airraid: '💣 공습 대피소' };
         const headerElement = document.getElementById('panelHeader');
         if (headerElement) headerElement.innerText = `📊 ${titleMap[type]} 목록`;
 
-        // 검색창 초기화
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
 
-        // [핵심] 공습 대피소 데이터가 아직 없으면 DB API 비동기 호출
+        // [1] 공습 대피소
         if (type === 'airraid' && shelterDatabase.airraid.length === 0) {
             try {
                 const response = await fetch('http://localhost:8080/api/shelters/air');
@@ -141,81 +149,222 @@
 
                 shelterDatabase.airraid = dbData
                     .map(item => {
-                        // [핵심 해결] DB 컬럼 데이터가 서로 바뀌어 있으므로 교차해서 매핑합니다!
-                        // DB의 lot(37.xx) -> 위도(lat)로 할당
                         const realLat = Number(item.lot);
-                        // DB의 lat(127.xx) -> 경도(lng)로 할당
                         const realLng = Number(item.lat);
 
                         return {
-                            id: item.shlt_id,
-                            name: item.fclt_nm || '이름 없음',
-                            address: item.daddr || '주소 정보 없음',
-                            lat: realLat, // 37.xx가 들어감
-                            lng: realLng  // 127.xx가 들어감
+                            id: item.shlt_id || item.id,
+                            name: item.fclt_nm || item.shelterName || '이름 없음',
+                            address: item.daddr || item.address || '주소 정보 없음',
+                            lat: realLat,
+                            lng: realLng
                         };
                     })
-                    .filter(item => {
-                        // 서울/수도권 정상 범위(위도 33~39, 경도 124~132) 검증
-                        return (
-                            !isNaN(item.lat) && !isNaN(item.lng) &&
-                            item.lat >= 33 && item.lat <= 39 &&
-                            item.lng >= 124 && item.lng <= 132
-                        );
-                    });
+                    .filter(item => !isNaN(item.lat) && !isNaN(item.lng) && item.lat >= 33 && item.lat <= 39 && item.lng >= 124 && item.lng <= 132);
 
-                console.log(`✅ 좌표 교정 완료! 유효 대피소: ${shelterDatabase.airraid.length}개`);
-
+                console.log(`✅ 공습 대피소 로드: ${shelterDatabase.airraid.length}개`);
             } catch (error) {
                 console.error('공습 대피소 통신 에러:', error);
             }
         }
 
-        // 데이터가 완전히 준비된 후 화면과 지도 갱신
+        // [2] 지진 대피소 (스마트 좌표 판별)
+        if (type === 'earthquake' && shelterDatabase.earthquake.length === 0) {
+            try {
+                const response = await fetch('http://localhost:8080/api/shelters/earthquake');
+                const dbData = await response.json();
+
+                shelterDatabase.earthquake = dbData
+                    .map(item => {
+                        const val1 = Number(item.lat || item.la || item.y || item.lot || 0);
+                        const val2 = Number(item.lot || item.lo || item.lng || item.lon || item.x || 0);
+
+                        const realLat = (val1 >= 33 && val1 <= 39) ? val1 : ((val2 >= 33 && val2 <= 39) ? val2 : NaN);
+                        const realLng = (val1 >= 120 && val1 <= 135) ? val1 : ((val2 >= 120 && val2 <= 135) ? val2 : NaN);
+
+                        return {
+                            id: item.shlt_id || item.id || item.seq,
+                            name: item.fclt_nm || item.vt_acm_dfclls_nm || item.equp_name || item.shelterName || '이름 없음',
+                            address: item.daddr || item.rn_addr || item.lnm_addr || item.address || '주소 정보 없음',
+                            lat: realLat,
+                            lng: realLng
+                        };
+                    })
+                    .filter(item => !isNaN(item.lat) && !isNaN(item.lng));
+
+                console.log(`✅ 지진 대피소 로드: ${shelterDatabase.earthquake.length}개`);
+            } catch (error) {
+                console.error('지진 대피소 통신 에러:', error);
+            }
+        }
+
+        // [3] 수해 대피소 (스마트 좌표 판별)
+        if (type === 'flood' && shelterDatabase.flood.length === 0) {
+            try {
+                const response = await fetch('http://localhost:8080/api/shelters/flood');
+                const dbData = await response.json();
+
+                shelterDatabase.flood = dbData
+                    .map(item => {
+                        const val1 = Number(item.lat || item.la || item.y || item.lot || 0);
+                        const val2 = Number(item.lot || item.lo || item.lng || item.lon || item.x || 0);
+
+                        const realLat = (val1 >= 33 && val1 <= 39) ? val1 : ((val2 >= 33 && val2 <= 39) ? val2 : NaN);
+                        const realLng = (val1 >= 120 && val1 <= 135) ? val1 : ((val2 >= 120 && val2 <= 135) ? val2 : NaN);
+
+                        return {
+                            id: item.shlt_id || item.id || item.seq,
+                            name: item.fclt_nm || item.vt_acm_dfclls_nm || item.equp_name || item.shelterName || '이름 없음',
+                            address: item.daddr || item.rn_addr || item.lnm_addr || item.address || '주소 정보 없음',
+                            lat: realLat,
+                            lng: realLng
+                        };
+                    })
+                    .filter(item => !isNaN(item.lat) && !isNaN(item.lng));
+
+                console.log(`✅ 수해 대피소 로드: ${shelterDatabase.flood.length}개`);
+            } catch (error) {
+                console.error('수해 대피소 통신 에러:', error);
+            }
+        }
+
         const dataList = shelterDatabase[type] || [];
-        renderListCards(dataList);
         updateMapWithFrame(dataList);
+        displayShelters(dataList);
     }
 
-    // 4. 키워드 검색 처리 함수
+    // 4. 💡 [하이브리드 검색] 대피소 DB 및 카카오 장소 검색 동시 실행
     function executeSearch() {
         const searchInput = document.getElementById('searchInput');
         const keyword = searchInput.value.trim();
         const currentDataList = shelterDatabase[currentType] || [];
 
         if (keyword === '') {
-            renderListCards(currentDataList);
             updateMapWithFrame(currentDataList);
+            displayShelters(currentDataList);
             return;
         }
 
+        // 1) 대피소 이름 또는 주소에 키워드가 직접 포함되어 있는지 검사
         const filteredList = currentDataList.filter(shelter => {
             const matchName = shelter.name && shelter.name.includes(keyword);
             const matchAddr = shelter.address && shelter.address.includes(keyword);
             return matchName || matchAddr;
         });
 
-        renderListCards(filteredList);
-        updateMapWithFrame(filteredList);
+        // 2) 대피소 데이터에서 발견되면 해당 대피소 위치로 이동
+        if (filteredList.length > 0) {
+            const firstTarget = filteredList[0];
+            const frame = document.getElementById('mapFrame');
+            if (frame && frame.contentWindow && typeof frame.contentWindow.panToLocation === 'function') {
+                frame.contentWindow.panToLocation(firstTarget.lat, firstTarget.lng);
+            }
+        } else {
+            // 3) 대피소 이름이 아니라 일반 장소(예: 서울종로경찰서)인 경우 카카오 장소 검색 호출
+            const frame = document.getElementById('mapFrame');
+            if (frame && frame.contentWindow && typeof frame.contentWindow.searchPlace === 'function') {
+                frame.contentWindow.searchPlace(keyword);
+            }
+        }
     }
 
-    // 5. 좌측 대피소 카드 동적 생성 (속도 최적화를 위해 상위 100개 슬라이싱)
-    function renderListCards(dataList) {
-        const listArea = document.getElementById('resultsList');
-        listArea.innerHTML = '';
-
-        if (!dataList || dataList.length === 0) {
-            listArea.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">조건에 일치하는 대피소가 없습니다.</div>`;
+    // 5. 브라우저 GPS 기반 내 위치 가져오기 함수
+    function getUserLocation() {
+        if (!navigator.geolocation) {
+            alert("이 브라우저에서는 위치 정보(GPS)를 지원하지 않습니다.");
             return;
         }
 
-        const displayList = dataList.slice(0, 100);
+        const badge = document.getElementById('totalCountBadge');
+        if (badge) badge.innerText = "내 위치 찾는 중...";
 
-        displayList.forEach((shelter, index) => {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                console.log(`📍 내 위치 탐색 성공: 위도 ${userLat}, 경도 ${userLng}`);
+
+                const frame = document.getElementById('mapFrame');
+                if (frame && frame.contentWindow && typeof frame.contentWindow.moveToUserLocation === 'function') {
+                    frame.contentWindow.moveToUserLocation(userLat, userLng);
+                }
+            },
+            function (error) {
+                console.error("GPS 위치 획득 실패:", error);
+                let errMsg = "위치 정보를 가져올 수 없습니다.";
+                if (error.code === error.PERMISSION_DENIED) {
+                    errMsg = "브라우저의 위치 정보 접근 권한을 허용해 주세요.";
+                }
+                alert(errMsg);
+                if (badge) badge.innerText = `총 ${currentDisplayList.length}개`;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 8000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    // 6. 지도 이동/줌 멈출 때(idle) 호출되는 시야 영역 필터링 함수
+    function filterByBounds(bounds) {
+        const currentDataList = shelterDatabase[currentType] || [];
+        if (currentDataList.length === 0) return;
+
+        const visibleShelters = currentDataList.filter(shelter => {
+            return (
+                shelter.lat >= bounds.minLat &&
+                shelter.lat <= bounds.maxLat &&
+                shelter.lng >= bounds.minLng &&
+                shelter.lng <= bounds.maxLng
+            );
+        });
+
+        currentDisplayList = visibleShelters;
+        currentPage = 1;
+
+        const badge = document.getElementById('totalCountBadge');
+        if (badge) badge.innerText = `화면 내 ${visibleShelters.length}개`;
+
+        renderCurrentPage();
+    }
+
+    // 7. 목록 표출 진입 함수
+    function displayShelters(dataList) {
+        currentDisplayList = dataList || [];
+        currentPage = 1;
+
+        const badge = document.getElementById('totalCountBadge');
+        if (badge) badge.innerText = `총 ${currentDisplayList.length}개`;
+
+        renderCurrentPage();
+    }
+
+    // 8. 현재 페이지 카드 및 페이징 버튼 렌더링
+    function renderCurrentPage() {
+        const listArea = document.getElementById('resultsList');
+        const pageArea = document.getElementById('paginationArea');
+        listArea.innerHTML = '';
+        pageArea.innerHTML = '';
+
+        if (currentDisplayList.length === 0) {
+            listArea.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 leading-relaxed">현재 지도 화면에 대피소가 없습니다.<br>지도를 이동하거나 축소해 보세요.</div>`;
+            return;
+        }
+
+        const totalItems = currentDisplayList.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        const pagedItems = currentDisplayList.slice(startIndex, endIndex);
+
+        // 카드 렌더링
+        pagedItems.forEach((shelter, idx) => {
+            const itemNumber = startIndex + idx + 1;
             const card = document.createElement('div');
-            card.className = "border border-slate-200 rounded-xl p-3 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition";
+            card.className = "shelter-card";
 
-            // 카드 클릭 시 지도 이동 함수 호출
             card.onclick = function () {
                 const frame = document.getElementById('mapFrame');
                 if (frame && frame.contentWindow && typeof frame.contentWindow.panToLocation === 'function') {
@@ -225,16 +374,91 @@
 
             card.innerHTML = `
                 <div class="flex items-center justify-between mb-1">
-                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">No.${index + 1}</span>
+                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">No.${itemNumber}</span>
                 </div>
                 <h3 class="text-sm font-bold text-slate-900">${shelter.name}</h3>
                 <p class="text-xs text-slate-500 mt-1">📍 ${shelter.address}</p>
             `;
             listArea.appendChild(card);
         });
+
+        // 5개 단위 페이징 버튼 그룹
+        const pageGroupSize = 5;
+        const currentGroup = Math.ceil(currentPage / pageGroupSize);
+        const startPage = (currentGroup - 1) * pageGroupSize + 1;
+        const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+        // 이전 버튼
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-[10px]"></i>';
+        prevBtn.className = `page-btn ${currentPage === 1 ? 'page-btn-disabled' : 'page-btn-normal'}`;
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderCurrentPage();
+            }
+        };
+        pageArea.appendChild(prevBtn);
+
+        // 숫자 버튼들
+        for (let p = startPage; p <= endPage; p++) {
+            const numBtn = document.createElement('button');
+            numBtn.innerText = p;
+            numBtn.className = `page-btn ${p === currentPage ? 'page-btn-active' : 'page-btn-normal'}`;
+            numBtn.onclick = () => {
+                currentPage = p;
+                renderCurrentPage();
+            };
+            pageArea.appendChild(numBtn);
+        }
+
+        // 다음 버튼
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-[10px]"></i>';
+        nextBtn.className = `page-btn ${currentPage === totalPages ? 'page-btn-disabled' : 'page-btn-normal'}`;
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderCurrentPage();
+            }
+        };
+        pageArea.appendChild(nextBtn);
     }
 
-    // 6. iframe 내부 지도 함수(setMarkers) 호출
+    // 9. 마커 클릭 시 호출되는 단일 대피소 집중 표시 함수
+    function selectShelterFromMap(selectedShelter) {
+        const listArea = document.getElementById('resultsList');
+        const pageArea = document.getElementById('paginationArea');
+        const badge = document.getElementById('totalCountBadge');
+
+        if (badge) badge.innerText = `선택된 대피소`;
+        pageArea.innerHTML = '';
+
+        listArea.innerHTML = `
+            <div class="mb-2">
+                <button onclick="displayShelters(shelterDatabase[currentType])" 
+                        class="w-full py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i> 전체 목록 다시보기
+                </button>
+            </div>
+            <div class="shelter-card border-2 border-blue-500 bg-blue-50/50 shadow-sm">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">선택됨</span>
+                    <span class="text-[10px] text-blue-600 font-semibold">📍 지도에서 클릭</span>
+                </div>
+                <h3 class="text-sm font-bold text-slate-900">${selectedShelter.name}</h3>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">🏢 주소: ${selectedShelter.address}</p>
+                <div class="mt-3 pt-2 border-t border-blue-100 flex items-center justify-between text-[11px] text-slate-500">
+                    <span>위도: ${selectedShelter.lat.toFixed(4)}</span>
+                    <span>경도: ${selectedShelter.lng.toFixed(4)}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // 10. 지도 iframe 마커 갱신 함수 호출
     function updateMapWithFrame(dataList) {
         const frame = document.getElementById('mapFrame');
         if (frame && frame.contentWindow && typeof frame.contentWindow.setMarkers === 'function') {

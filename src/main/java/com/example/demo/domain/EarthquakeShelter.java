@@ -22,7 +22,9 @@ public class EarthquakeShelter {
     private String sgg_nm;
     private String fclt_nm;
     private String daddr;
-    private BigDecimal lot_DECIMAL;
-    private BigDecimal lat_DECIMAL;
+    @Column(name = "lot", precision = 10, scale = 7)
+    private BigDecimal lot;
+    @Column(name = "lat", precision = 10, scale = 7)
+    private BigDecimal lat;
     private String mng_dept_nm;
 }

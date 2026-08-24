@@ -1,36 +1,45 @@
-//package com.example.demo.controller;
-//
-//import com.example.demo.service.EarthquakeShelterService;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import java.util.Map;
-//
-//@RestController // "이 클래스는 웹 브라우저나 외부 요청을 받아 처리하는 안내데스크(컨트롤러)야!"라고 알려줍니다.
-//@RequestMapping("/api/earthquake")
-//public class EarthquakeShelterController {
-//
-//    // 실무 작업을 처리할 주방장(Service)을 불러옵니다.
-//    private final EarthquakeShelterService earthquakeShelterService;
-//
-//    // 생성자를 통해 서비스를 주입받습니다.
-//    public EarthquakeShelterController(EarthquakeShelterService earthquakeShelterService) {
-//        this.earthquakeShelterService = earthquakeShelterService;
-//    }
-//
-//    @GetMapping("/test")
-//    public Map<String, Object> testEarthquake() {
-//        return Map.of("status", "success");
-//    }
-//
-//    // 사용자가 웹 브라우저 주소창에 "http://localhost:8080/api/earthquake/fetch-shelters"라고 치고 들어오면 이 메서드가 실행됩니다.
-//    @GetMapping("/fetch-shelters")
-//    public String fetchAndSaveShelters() {
-//        // 서비스에게 API 데이터를 가져와서 DB에 저장하라고 명령을 내립니다.
-//        earthquakeShelterService.fetchAndSaveShelterData();
-//
-//        // 작업이 끝났다는 메시지를 웹 화면에 띄워줍니다.
-//        return "지진 대피소 데이터 수집 및 DB 저장 완료!";
-//    }
-//}
+package com.example.demo.controller;
+
+import com.example.demo.domain.EarthquakeShelter;
+import com.example.demo.service.EarthquakeShelterService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+// 1. 반환 데이터를 HTML 뷰가 아닌 JSON 형식의 HTTP 응답 본문(Body)으로 전송합니다.
+@RestController
+// 2. 이 컨트롤러에서 처리할 공통 기본 URL 경로를 지정합니다.
+@RequestMapping("/api/shelters/earthquake")
+// 3. final 필드인 Service의 생성자 주입 코드를 롬복으로 자동 완성합니다.
+@RequiredArgsConstructor
+// 4. 프론트엔드(HTML/JS)와의 통신 시 브라우저의 CORS 정책 차단을 방지합니다.
+@CrossOrigin(origins = "*")
+public class EarthquakeShelterController {
+
+    // 5. 비즈니스 로직을 호출할 Service 객체를 선언합니다.
+    private final EarthquakeShelterService earthquakeShelterService;
+
+    /**
+     * GET 요청 시 지진 대피소 전체 목록을 JSON 형태로 응답합니다.
+     * 호출 URL: http://localhost:8080/api/shelters/earthquake
+     */
+    @GetMapping
+    public ResponseEntity<List<EarthquakeShelter>> getAllEarthquakeShelters() {
+        // Service로부터 대피소 리스트를 받아옵니다.
+        List<EarthquakeShelter> shelters = earthquakeShelterService.findAllEarthquakeShelters();
+        // 200 OK 상태 코드와 함께 JSON 리스트를 반환합니다.
+        return ResponseEntity.ok(shelters);
+    }
+
+    /**
+     * GET 요청 시 특정 대피소 1개의 상세 정보를 JSON 형태로 응답합니다.
+     * 호출 URL 예시: http://localhost:8080/api/shelters/earthquake/1
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<EarthquakeShelter> getShelterById(@PathVariable("id") Long id) {
+        EarthquakeShelter shelter = earthquakeShelterService.findShelterById(id);
+        return ResponseEntity.ok(shelter);
+    }
+}
