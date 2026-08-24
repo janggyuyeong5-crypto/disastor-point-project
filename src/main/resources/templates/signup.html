@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        body {
+            background-color: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+        .signup-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            zoom:  1.50;
+        }
+        h2 { text-align: center; margin-bottom: 25px; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; }
+        .input-group input {
+            width: 100%; padding: 10px; border: 1px solid #ccc;
+            border-radius: 5px; box-sizing: border-box; font-size: 14px;
+        }
+        .signup-btn {
+            width: 100%; padding: 12px; background-color: #28a745;
+            color: white; border: none; border-radius: 5px;
+            font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px;
+        }
+        .signup-btn:hover { background-color: #218838; }
+        .login-link { text-align: center; margin-top: 15px; font-size: 12px; }
+        .login-link a { color: #007bff; text-decoration: none; }
+        /* 🟢 에러 메시지 스타일 */
+        .error-message {
+            color: #dc3545; font-size: 13px; text-align: center;
+            margin-bottom: 15px; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>회원가입</h2>
+
+    <!-- 🟢 서버에서 전달받은 에러 메시지가 있을 때만 빨간 글씨로 출력됩니다 -->
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <form action="/api/users/signup" method="POST">
+        <div class="input-group">
+            <!-- 🟢 for와 id를 똑같이 맞춰서 짝꿍을 맺어줍니다 -->
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="input-group">
+            <label for="realname">이름</label>
+            <input type="text" id="realname" name="realname" required>
+        </div>
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <button type="submit" class="signup-btn">가입하기</button>
+    </form>
+    <div class="login-link">
+        <a href="/login">이미 계정이 있으신가요? 로그인</a>
+    </div>
+</div>
+
+</body>
+</html>

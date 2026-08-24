@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 35px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 340px;
+
+            /* 🟢 [핵심 마법] 브라우저 배율이 100%여도 이 박스만 강제로 1.75배 뻥튀기해 줍니다! */
+            zoom: 1.75;
+        }
+
+        h2 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; font-size: 20px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #777; margin-bottom: 6px; }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .login-btn:hover { background-color: #0056b3; }
+
+        .signup-link { text-align: center; margin-top: 15px; font-size: 12px; color: #666; }
+        .signup-link a { color: #007bff; text-decoration: none; }
+        .signup-link a:hover { text-decoration: underline; }
+
+        .error-message {
+            color: #dc3545; font-size: 12px; text-align: center;
+            margin-bottom: 12px; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>로그인</h2>
+
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <form action="/api/users/login" method="POST">
+        <div class="input-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="login-btn">로그인</button>
+    </form>
+
+    <div class="signup-link">
+        계정이 없으신가요? <a href="/signup">회원가입</a>
+    </div>
+</div>
+
+</body>
+</html>

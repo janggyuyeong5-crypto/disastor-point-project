@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>방명록 게시판</title>
+    <style>
+        body {
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 40px;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .list-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-section h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .write-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .write-btn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #444;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f1f2f6;
+        }
+
+        .col-id { width: 10%; text-align: center; }
+        .col-title { width: 30%; }
+        .col-writer { width: 15%; } /* 🟢 작성자 열 너비 추가 */
+        .col-content { width: 45%; } /* 🟢 내용 열 너비 조정 */
+
+        .col-title a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .col-title a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="list-container">
+    <div class="header-section">
+        <h2>📋 방명록 게시판</h2>
+        <a href="/write" class="write-btn">글 쓰러 가기</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th class="col-id">번호</th>
+            <th class="col-title">제목</th>
+            <th class="col-writer">작성자</th> <!-- 🟢 작성자 제목 추가 -->
+            <th class="col-content">내용</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 타임리프를 이용해 게시글 목록 출력 -->
+        <tr th:each="post : ${postList}">
+            <td class="col-id" th:text="${post.id}">1</td>
+            <td class="col-title">
+                <a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">제목</a>
+            </td>
+            <td class="col-writer" th:text="${post.writer}">작성자</td> <!-- 🟢 작성자 데이터 출력 -->
+            <td class="col-content" th:text="${post.content}">내용</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

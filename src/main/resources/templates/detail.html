@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세보기</title>
+  <style>
+    body {
+      background-color: #f5f6fa;
+      margin: 0;
+      padding: 40px;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+    .detail-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+    h2 { color: #333; margin-top: 0; }
+    .writer-info { font-size: 13px; color: #888; margin-bottom: 15px; }
+    .content-box {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      min-height: 150px;
+      margin: 20px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #444;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .btn-group { display: flex; gap: 10px; align-items: center; }
+    .back-btn {
+      background-color: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .back-btn:hover { background-color: #5a6268; }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .delete-btn:hover { background-color: #bd2130; }
+  </style>
+</head>
+<body>
+
+<div class="detail-container">
+  <h2 th:text="${post.title}">제목</h2>
+  <div class="writer-info">작성자: <span th:text="${post.writer}">작성자아이디</span></div>
+  <hr style="border:0; height:1px; background:#eee; margin: 20px 0;">
+
+  <div class="content-box" th:text="${post.content}">
+    내용
+  </div>
+
+  <div class="btn-group">
+    <a href="/posts" class="back-btn">목록으로</a>
+
+    <!-- 🟢 로그인한 유저와 글 작성자가 같을 때만 삭제 버튼 노출 -->
+    <form th:if="${session.loginUser == post.writer}" th:action="@{/posts/delete/{id}(id=${post.id})}" method="POST" style="margin:0;">
+      <button type="submit" class="delete-btn">삭제하기</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
